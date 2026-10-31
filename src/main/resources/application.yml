@@ -1,0 +1,40 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: taskpulse
+  datasource:
+    url: jdbc:postgresql://localhost:5432/taskpulse_db
+    username: taskpulse
+    password: taskpulse123
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          batch_size: 25
+
+taskpulse:
+  node-id: ""
+  scheduler:
+    poll-interval-ms: 1000
+  workers:
+    core-pool-size: 8
+    max-pool-size: 16
+    queue-capacity: 1000
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

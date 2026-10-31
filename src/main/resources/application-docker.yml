@@ -1,0 +1,8 @@
+server:
+  port: 8085
+
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/taskpulse_db
+    username: taskpulse
+    password: taskpulse123
