@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: taskpulse-postgres
+    environment:
+      POSTGRES_USER: taskpulse
+      POSTGRES_PASSWORD: taskpulse123
+      POSTGRES_DB: taskpulse_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - taskpulse_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taskpulse -d taskpulse_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - taskpulse-network
+
+  taskpulse-node-1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: taskpulse-node-1
+    ports:
+      - "8085:8085"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/taskpulse_db
+      SPRING_DATASOURCE_USERNAME: taskpulse
+      SPRING_DATASOURCE_PASSWORD: taskpulse123
+      SPRING_PROFILES_ACTIVE: docker
+      TASKPULSE_NODE_ID: cluster-node-alpha
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - taskpulse-network
+
+  taskpulse-node-2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: taskpulse-node-2
+    ports:
+      - "8086:8085"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/taskpulse_db
+      SPRING_DATASOURCE_USERNAME: taskpulse
+      SPRING_DATASOURCE_PASSWORD: taskpulse123
+      SPRING_PROFILES_ACTIVE: docker
+      TASKPULSE_NODE_ID: cluster-node-beta
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - taskpulse-network
+
+networks:
+  taskpulse-network:
+    driver: bridge
+
+volumes:
+  taskpulse_postgres_data:
